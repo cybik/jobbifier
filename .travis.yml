@@ -12,7 +12,7 @@ sudo: false
 deploy:
   provider: releases
   api_key: "${TRAVIS_TOKEN}"
-  file: "yafot/build/libs/jObbifier-all.jar"
+  file: "yafot/build/libs/yafot-all.jar"
   skip_cleanup: true
   on:
     tags: true

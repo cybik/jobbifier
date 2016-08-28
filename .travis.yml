@@ -12,9 +12,12 @@ sudo: false
 deploy:
     provider: releases
     api_key: "${TRAVIS_TOKEN}"
-    file: "yafot/build/libs/yafot-all.jar"
+    file:
+        - yafot/build/libs/yafot-all.jar
+        - googlejobb/build/libs/googlejobb.jar
     skip_cleanup: true
     on:
+        repo: cybik/yafot
         tags: true
 
 notifications:

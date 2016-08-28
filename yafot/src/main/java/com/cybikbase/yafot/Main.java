@@ -2,10 +2,12 @@ package com.cybikbase.yafot;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
 // Cybik's musings
+import com.mtuga.tuples4j.client.Pair;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -23,30 +25,36 @@ public class Main {
 		if( args.length > 0 ) {
 			OptionParser opt = new OptionParser() {
 				{
+					// Pre-done because there's kind of a circular dep in here.
 					acceptsAll(asList("a", "artifacts","id", "input-dir"));
 					acceptsAll(asList("h", "?", "usage", "help"), "Show this help").forHelp();
-					acceptsAll(asList("pn", "packagename"), "Package's name.")
-						.withRequiredArg()
-						.ofType(String.class)
-						.describedAs("package_name")
-						.defaultsTo("com.android.lolyourstuff")
-						.required()
-					;
-					acceptsAll(asList("v", "version"), "Version number of the OBB package.")
-						.withRequiredArg()
-						.ofType(Integer.class)
-						.describedAs("version")
-						.defaultsTo(1)
-						.required()
-					;
-					acceptsAll(asList("p", "password"), "Password to lock the file with. Optional.")
-						.withRequiredArg()
-						.ofType(String.class)
-						.describedAs("password")
-						.required()
-					;
 				}
 			};
+			OptionSpec<String> packageName =
+				opt.acceptsAll(asList("pn", "packagename"), "Package's name.")
+					.withRequiredArg()
+					.ofType(String.class)
+					.describedAs("package_name")
+					.defaultsTo("com.android.lolyourstuff")
+					.required()
+				;
+			OptionSpec<Integer> version =
+				opt.acceptsAll(asList("v", "version"), "Version number of the OBB package.")
+					.withRequiredArg()
+					.ofType(Integer.class)
+					.describedAs("version")
+					.defaultsTo(1)
+					.required()
+				;
+
+			OptionSpec<String> password =
+				opt.acceptsAll(asList("p", "password"), "Password to lock the file with. Optional.")
+					.withRequiredArg()
+					.ofType(String.class)
+					.describedAs("password")
+					.defaultsTo("yafotyafotyafot")
+					.required()
+				;
 
 			OptionSpec<File> outputDir =
 				opt.acceptsAll(asList("od", "output-dir"), "Directory to store the output OBB in")
@@ -69,7 +77,6 @@ public class Main {
 					.requiredUnless("g", "gfs")
 					.withRequiredArg()
 					.ofType(File.class)
-					.defaultsTo(new File("yafot-temp-input"))
 					.describedAs("dir")
 				;
 			try {
@@ -91,6 +98,65 @@ public class Main {
 			// 			 them to a default temp dir and use THAT dir for our obb base.
 			List<File> archList = opts.valuesOf(artifacts);
 			File inputDirValue = opts.valueOf(inputDir);
+
+			boolean inputDirExistence = false;
+			boolean archListExistence = false;
+			boolean undoArchiveAssemblage = false;
+			if((inputDir != null) && inputDirValue.exists()) {
+				inputDirExistence = true;
+			}
+			if(archList != null) {
+				for(File f: archList) {
+					if(f.exists())
+						archListExistence = true;
+				}
+			}
+			if(inputDirExistence && archListExistence) {
+				throw new RuntimeException("User could not have provided both a valid inputdir and an archive list");
+			}
+			List<Pair<File, File>> oldAndNewTuples = null;
+			if(inputDirExistence && !archListExistence) {
+				// nop! inputDir is already set to the proper value.
+			} else if(!inputDirExistence && archListExistence) {
+				undoArchiveAssemblage = true;
+				oldAndNewTuples = new ArrayList<>();
+				inputDirValue = new File("yafot-temp-dir/archives");
+				inputDirValue.mkdirs();
+				Pair<File, File> currentTuple = null;
+				for(File f: archList) {
+					oldAndNewTuples.add(
+						currentTuple = new Pair<>(
+							f, new File(inputDirValue.getAbsolutePath() + File.pathSeparator + f.getPath())
+						)
+					);
+					try {
+						Files.move(currentTuple.getFirst().toPath(), currentTuple.getSecond().toPath());
+					} catch (IOException e) {
+						throw new RuntimeException("Couldn't assemble archives");
+					}
+				}
+			}
+
+			// Actual!
+			List<String> arguments = prepareArguments(
+				inputDirValue.getPath(), // input directory, either created or pre-existing
+				outputDirValue.getPath(), // outputdir
+				opts.valueOf(packageName), // packagename
+				String.valueOf(opts.valueOf(version)), // packageversion
+				opts.valueOf(password)  // password characters
+			);
+			// Call obb NAO
+			invoke(arguments);
+
+			if(undoArchiveAssemblage) {
+				for(Pair<File, File> pf: oldAndNewTuples) {
+					try {
+						Files.move(pf.getSecond().toPath(), pf.getFirst().toPath());
+					} catch (IOException e) {
+						throw new RuntimeException("Couldn't restore archives to their original paths");
+					}
+				}
+			}
 
 		} else {
 			(new YafotUI(this)).execute();

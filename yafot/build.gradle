@@ -26,4 +26,8 @@ dependencies {
 
     // Command line option parser
     compile "net.sf.jopt-simple:jopt-simple:5.0.2"
+
+    // Tuples
+    compile "com.github.martinstuga:tuples4j:1.2"
+
 }

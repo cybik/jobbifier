@@ -1,15 +1,15 @@
-Yet Another Friendly Obbifier Tool
+Yet Another F[riendly/unky] Obbifier Tool
 =========
 
 Java GUI app for creating OBB files. 
 
-YAFOT (Yet Another Friendly Obbification Tool) is based on these tools:
+YAFOT (Yet Another F[riendly/unky] Obbification Tool) is based on these tools:
 
-* The [Android jobb tool](http://developer.android.com/tools/help/jobb.html)
+* googlejobb: The [Android jobb tool](http://developer.android.com/tools/help/jobb.html)
     * Direct source dependency (com.android.jobb)
 * libfat32
     * https://github.com/waldheinz/fat32-lib
-* Most code from monkey0506/jobbifier, with the following improvements:
+* yafot: Most code from monkey0506/jobbifier, with the following improvements:
     * Gets rid of extraneous build configurations
         * No .idea at the root of the repo for a cleaner local import and for cleaner CI
         * .gitignores unified into the root.
@@ -24,7 +24,7 @@ Directory Structure
 ===================
 The project structure is arranged thusly:
 
-jobb
+googlejobb
 ----
 Modified Android jobb tool source. Contains bugfix for [Issue 220717](https://code.google.com/p/android/issues/detail?id=220717)
 ~~[Issue 60294](https://code.google.com/p/android/issues/detail?id=60294)~~.
@@ -36,4 +36,4 @@ Modified FAT library source. Contains bugfix for [Issue 220717](https://code.goo
 
 yafot
 ---------
-Main project files for GUI app. Slightly altered from monkey0506's code to allow for fun stuffs.
+Main project files for GUI app. Altered from monkey0506's code to allow for fun stuffs.

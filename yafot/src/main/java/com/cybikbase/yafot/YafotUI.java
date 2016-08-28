@@ -88,14 +88,14 @@ public class YafotUI {
      * Create the application.
      * @param main
      */
-    public YafotUI(Main main) {
+    public YafotUI(Yafot main) {
         initialize(main);
     }
     /**
      * Initialize the contents of the frame.
      * @param main
      */
-    private void initialize(Main main) {
+    private void initialize(Yafot main) {
         frmJObbifier = new JFrame();
         frmJObbifier.setResizable(false);
         frmJObbifier.setBounds(100, 100, 619, 488);
@@ -283,7 +283,6 @@ public class YafotUI {
             Executors.newSingleThreadExecutor().execute(() -> {
                 // run the jobb code in a separate thread so program doesn't hang
                 main.invoke(args1);
-                //com.android.jobb.Main.main(args.toArray(new String[0]));
             });
         });
 

@@ -31,11 +31,7 @@ import de.waldheinz.fs.fat.FatUtils;
 import de.waldheinz.fs.fat.SuperFloppyFormatter;
 import de.waldheinz.fs.util.FileDisk;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -154,6 +150,31 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
+        main(args, false, null, null);
+    }
+    public static void main(String[] args, boolean mute, File outputLog, File errLog) {
+        PrintStream origps = System.out;
+        PrintStream origerr = System.err;
+        if(mute) {
+            PrintStream ps = null;
+            PrintStream err = null;
+            try {
+                if(!outputLog.exists()) {
+                    outputLog.getParentFile().mkdirs();
+                    outputLog.createNewFile();
+                    ps = new PrintStream(outputLog);
+                }
+                if(!errLog.exists()) {
+                    errLog.getParentFile().mkdirs();
+                    errLog.createNewFile();
+                    err = new PrintStream(errLog);
+                }
+            } catch (IOException e) {
+                // eh, just skip
+            }
+            System.setOut(ps);
+            System.setErr(err);
+        }
         boolean displayHelp = false;
         boolean isEncrypted = false;
         try {
@@ -562,6 +583,10 @@ public class Main {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        if(mute) {
+            System.setOut(origps);
+            System.setErr(origerr);
         }
     }
 

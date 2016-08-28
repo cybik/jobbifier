@@ -10,7 +10,7 @@ buildscript {
 apply plugin: 'com.github.johnrengelman.shadow'
 
 apply plugin: 'application'
-mainClassName = 'com.monkeymoto.jobbifier.Main'
+mainClassName = 'com.cybikbase.yafot.Main'
 
 jar {
     manifest {
@@ -22,7 +22,7 @@ shadowJar {
     configurations = [project.configurations.compile]
 }
 dependencies {
-    compile project(':jobb')
+    compile project(':googlejobb')
 
     // Command line option parser
     compile "net.sf.jopt-simple:jopt-simple:5.0.2"

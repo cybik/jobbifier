@@ -1,6 +1,6 @@
 ---
 language: java
-script: ./gradlew clean :jObbifier:shadowJar
+script: ./gradlew clean :yafot:shadowJar
 
 os:
     - linux
@@ -12,7 +12,7 @@ sudo: false
 deploy:
   provider: releases
   api_key: "${TRAVIS_TOKEN}"
-  file: "jObbifier/build/libs/jObbifier-all.jar"
+  file: "yafot/build/libs/jObbifier-all.jar"
   skip_cleanup: true
   on:
     tags: true

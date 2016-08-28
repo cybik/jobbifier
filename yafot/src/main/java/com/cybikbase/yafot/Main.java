@@ -1,4 +1,4 @@
-package com.monkeymoto.jobbifier;
+package com.cybikbase.yafot;
 
 import java.awt.EventQueue;
 import java.awt.event.ItemEvent;
@@ -43,6 +43,7 @@ import javax.swing.JMenuItem;
 // Cybik's musings
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 import static java.util.Arrays.asList;
 
@@ -77,7 +78,12 @@ public class Main {
 		// If there's any shell arguments, do a shell-based invoke
 		if( args.length > 0 ) {
 			OptionParser optParse = generateOptionsParser();
-
+			try {
+				optParse.printHelpOn(System.out);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			optParse.parse(args);
 		} else {
 			// Else, present the UI
 			EventQueue.invokeLater(() -> {
@@ -94,9 +100,53 @@ public class Main {
 	private static OptionParser generateOptionsParser() {
 		OptionParser opt = new OptionParser() {
 			{
-				acceptsAll(asList("h", "?", "usage", "help"), "show this help").forHelp();
+				acceptsAll(asList("g", "gfs","id", "input-dir"));
+				acceptsAll(asList("h", "?", "usage", "help"), "Show this help").forHelp();
+				acceptsAll(asList("od", "output-dir"), "Directory to store the output OBB in")
+					.withRequiredArg()
+					.ofType(String.class)
+					.describedAs("name")
+					.defaultsTo("output")
+					.required()
+				;
+				acceptsAll(asList("pn", "packagename"), "Package's name.")
+					.withRequiredArg()
+					.ofType(String.class)
+					.describedAs("package_name")
+					.defaultsTo("com.android.lolyourstuff")
+					.required()
+				;
+				acceptsAll(asList("v", "version"), "Version number of the OBB package.")
+					.withRequiredArg()
+					.ofType(Integer.class)
+					.describedAs("version")
+					.defaultsTo(1)
+					.required()
+				;
+				acceptsAll(asList("p", "password"), "Password to lock the file with. Optional.")
+					.withRequiredArg()
+					.ofType(String.class)
+					.describedAs("password")
+					.required()
+				;
 			}
 		};
+
+		OptionSpec<File> gfs =
+			opt.acceptsAll(asList("g", "gfs"), "GFS archives to pack - per file")
+				.requiredUnless("id", "input-dir")
+				.withRequiredArg()
+				.ofType(File.class)
+				.describedAs("gfsarch1,gfsarch2,...")
+				.withValuesSeparatedBy(",")
+		;
+		OptionSpec<File> inputDir =
+			opt.acceptsAll(asList("id", "input-dir"), "GFS archives to pack - pack dir")
+				.requiredUnless("g", "gfs")
+				.withRequiredArg()
+				.ofType(File.class)
+				.describedAs("dir")
+		;
 		return opt;
 	}
 
@@ -164,7 +214,7 @@ public class Main {
 		frmJObbifier.setResizable(false);
 		frmJObbifier.setBounds(100, 100, 619, 488);
 		frmJObbifier.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmJObbifier.setTitle("jObbifier");
+		frmJObbifier.setTitle("Yet Another Friendly Obbifier Tool");
 		inputDir = null;
 		outputDir = null;
 
@@ -308,6 +358,17 @@ public class Main {
                         "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            List<String> args1 = prepareArguments(
+				inputDir.getPath(),
+				outputDir.getPath() + File.separator + getOutputFileName(),
+				txtPackageName.getText(),
+				spinner.getValue().toString(),
+				(chkUsePassword.isSelected()
+					? new String(pwdPassword.getPassword())
+					: null
+				)
+			);
+			/*
             List<String> args = new ArrayList<>(asList(
             new String[]
             {
@@ -332,10 +393,10 @@ public class Main {
                         pwdChars[i] = (char)0;
                     }
                 }
-            }
+            }*/
             Executors.newSingleThreadExecutor().execute(() -> {
                 // run the jobb code in a separate thread so program doesn't hang
-				invoke(args);
+				invoke(args1);
                 //com.android.jobb.Main.main(args.toArray(new String[0]));
             });
         });
@@ -444,6 +505,26 @@ public class Main {
 		mainPatchGroup.add(rdbtnPatch);
 		frmJObbifier.getContentPane().setLayout(groupLayout);
 		redirectSystemStreams();
+	}
+
+	private List<String> prepareArguments(String inputDir, String outputDir, String packageName, String packageVersion, String pwdChars) {
+
+		List<String> args = new ArrayList<>(
+			asList(
+				new String[] {
+					"-d", inputDir,
+					"-o", outputDir,
+					"-pn", packageName,
+					"-pv", packageVersion,
+					"-v" // go verbose, fuck it
+				}
+			)
+		);
+		if(pwdChars != null && !pwdChars.isEmpty()) {
+			args.add("-k");
+			args.add(pwdChars);
+		}
+		return args;
 	}
 
 	private void invoke(List<String> strings) {

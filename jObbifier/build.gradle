@@ -1,5 +1,15 @@
-apply plugin: 'application'
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.3'
+    }
+}
 
+apply plugin: 'com.github.johnrengelman.shadow'
+
+apply plugin: 'application'
 mainClassName = 'com.monkeymoto.jobbifier.Main'
 
 jar {
@@ -8,8 +18,12 @@ jar {
                 'Class-Path': configurations.runtime.files.collect {"$it.name"}.join(' ')
     }
 }
-
+shadowJar {
+    configurations = [project.configurations.compile]
+}
 dependencies {
     compile project(':jobb')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Command line option parser
+    compile "net.sf.jopt-simple:jopt-simple:5.0.2"
 }

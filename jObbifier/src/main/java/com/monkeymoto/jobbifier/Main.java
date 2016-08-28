@@ -1,9 +1,6 @@
 package com.monkeymoto.jobbifier;
 
-import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
@@ -33,8 +30,6 @@ import javax.swing.JTextPane;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -44,6 +39,12 @@ import javax.swing.JCheckBox;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
+
+// Cybik's musings
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+
+import static java.util.Arrays.asList;
 
 public class Main {
 
@@ -73,16 +74,30 @@ public class Main {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
+		// If there's any shell arguments, do a shell-based invoke
+		if( args.length > 0 ) {
+			OptionParser optParse = generateOptionsParser();
+
+		} else {
+			// Else, present the UI
+			EventQueue.invokeLater(() -> {
 				try {
 					Main window = new Main();
 					window.frmJObbifier.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			});
+		}
+	}
+
+	private static OptionParser generateOptionsParser() {
+		OptionParser opt = new OptionParser() {
+			{
+				acceptsAll(asList("h", "?", "usage", "help"), "show this help").forHelp();
 			}
-		});
+		};
+		return opt;
 	}
 
 	/**
@@ -162,51 +177,41 @@ public class Main {
 		
 		mntmExit = new JMenuItem("Exit");
 		mntmExit.setMnemonic('x');
-		mntmExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frmJObbifier.dispose();
-			}
-		});
+		mntmExit.addActionListener(e -> frmJObbifier.dispose());
 		mnFile.add(mntmExit);
 		
 		lblInputFolder = new JLabel("Input folder:");
 		
 		btnInputSelection = new JButton("...");
-		btnInputSelection.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				inputDir = SanitizePath(inputDir, txtInputFolder);
-				JFileChooser chooser = new JFileChooser();
-				chooser.setCurrentDirectory(new File(inputDir == null ? "." : inputDir.getPath()));
-				chooser.setDialogTitle("Select input folder...");
-				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				chooser.setAcceptAllFileFilterUsed(false);
-				if (chooser.showOpenDialog(frmJObbifier) == JFileChooser.APPROVE_OPTION) {
-					inputDir = chooser.getSelectedFile();
-					txtInputFolder.setText(inputDir.getAbsolutePath());
-				}
-			}
-		});
+		btnInputSelection.addActionListener(e -> {
+            inputDir = SanitizePath(inputDir, txtInputFolder);
+            JFileChooser chooser = new JFileChooser();
+            chooser.setCurrentDirectory(new File(inputDir == null ? "." : inputDir.getPath()));
+            chooser.setDialogTitle("Select input folder...");
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            if (chooser.showOpenDialog(frmJObbifier) == JFileChooser.APPROVE_OPTION) {
+                inputDir = chooser.getSelectedFile();
+                txtInputFolder.setText(inputDir.getAbsolutePath());
+            }
+        });
 		
 		lblOutputFolder = new JLabel("Output location:");
 		
 		btnOutputSelection = new JButton("...");
-		btnOutputSelection.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				outputDir = SanitizePath(outputDir, txtOutputFolder);
-				JFileChooser chooser = new JFileChooser();
-				chooser.setCurrentDirectory(new File(outputDir == null ? "." : outputDir.getPath()));
-				chooser.setDialogTitle("Select output folder...");
-				chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				chooser.setAcceptAllFileFilterUsed(false);
-				if (chooser.showOpenDialog(frmJObbifier) == JFileChooser.APPROVE_OPTION)
-				{
-					outputDir = chooser.getSelectedFile();
-					txtOutputFolder.setText(outputDir.getAbsolutePath());
-				}
-			}
-		});
+		btnOutputSelection.addActionListener(e -> {
+            outputDir = SanitizePath(outputDir, txtOutputFolder);
+            JFileChooser chooser = new JFileChooser();
+            chooser.setCurrentDirectory(new File(outputDir == null ? "." : outputDir.getPath()));
+            chooser.setDialogTitle("Select output folder...");
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            if (chooser.showOpenDialog(frmJObbifier) == JFileChooser.APPROVE_OPTION)
+            {
+                outputDir = chooser.getSelectedFile();
+                txtOutputFolder.setText(outputDir.getAbsolutePath());
+            }
+        });
 		
 		lblPackageName = new JLabel("Package name:");
 		
@@ -237,33 +242,15 @@ public class Main {
 		lblPackageVersion = new JLabel("Package version:");
 		
 		spinner = new JSpinner();
-		spinner.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				updateOutputFileNameLabel();
-			}
-		});
+		spinner.addChangeListener(e -> updateOutputFileNameLabel());
 		spinner.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
 		
 		rdbtnMain = new JRadioButton("Main");
 		rdbtnMain.setSelected(true);
-		rdbtnMain.addItemListener(new ItemListener()
-		{
-			@Override
-			public void itemStateChanged(ItemEvent e)
-			{
-				updateOutputFileNameLabel();
-			}
-		});
+		rdbtnMain.addItemListener(e -> updateOutputFileNameLabel());
 		
 		rdbtnPatch = new JRadioButton("Patch");
-		rdbtnPatch.addItemListener(new ItemListener()
-		{
-			@Override
-			public void itemStateChanged(ItemEvent e)
-			{
-				updateOutputFileNameLabel();
-			}
-		});
+		rdbtnPatch.addItemListener(e -> updateOutputFileNameLabel());
 		
 		lblOutputFileName = new JLabel();
 		updateOutputFileNameLabel();
@@ -311,53 +298,47 @@ public class Main {
 		});
 		
 		btnCreateObb = new JButton("Create OBB");
-		btnCreateObb.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if ((inputDir = SanitizePath(inputDir, txtInputFolder, true)) == null) return;
-				if ((outputDir = SanitizePath(outputDir, txtOutputFolder, true)) == null) return;
-				if (inputDir == outputDir)
-				{
-					JOptionPane.showMessageDialog(frmJObbifier,
-							"Error: Input and output directories cannot be the same.",
-							"Error!", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				List<String> args = new ArrayList<>(Arrays.asList(
-				new String[]
-				{
-					"-d", inputDir.getPath(),
-					"-o", outputDir.getPath() + File.separator + getOutputFileName(),
-					"-pn", txtPackageName.getText(),
-					"-pv", spinner.getValue().toString(),
-					"-v"
-				}));
-				if (chkUsePassword.isSelected())
-				{
-					char[] pwdChars = pwdPassword.getPassword();
-					if (pwdChars != null)
-					{
-						if (pwdChars.length != 0)
-						{
-							args.add("-k");
-							args.add(new String(pwdChars));
-						}
-						for (int i = 0; i < pwdChars.length; ++i)
-						{
-							pwdChars[i] = (char)0;
-						}
-					}
-				}
-				Executors.newSingleThreadExecutor().execute(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						// run the jobb code in a separate thread so program doesn't hang
-						com.android.jobb.Main.main(args.toArray(new String[0]));
-					}
-				});
-			}
-		});
+		btnCreateObb.addActionListener(e -> {
+            if ((inputDir = SanitizePath(inputDir, txtInputFolder, true)) == null) return;
+            if ((outputDir = SanitizePath(outputDir, txtOutputFolder, true)) == null) return;
+            if (inputDir == outputDir)
+            {
+                JOptionPane.showMessageDialog(frmJObbifier,
+                        "Error: Input and output directories cannot be the same.",
+                        "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            List<String> args = new ArrayList<>(asList(
+            new String[]
+            {
+                "-d", inputDir.getPath(),
+                "-o", outputDir.getPath() + File.separator + getOutputFileName(),
+                "-pn", txtPackageName.getText(),
+                "-pv", spinner.getValue().toString(),
+                "-v"
+            }));
+            if (chkUsePassword.isSelected())
+            {
+                char[] pwdChars = pwdPassword.getPassword();
+                if (pwdChars != null)
+                {
+                    if (pwdChars.length != 0)
+                    {
+                        args.add("-k");
+                        args.add(new String(pwdChars));
+                    }
+                    for (int i = 0; i < pwdChars.length; ++i)
+                    {
+                        pwdChars[i] = (char)0;
+                    }
+                }
+            }
+            Executors.newSingleThreadExecutor().execute(() -> {
+                // run the jobb code in a separate thread so program doesn't hang
+				invoke(args);
+                //com.android.jobb.Main.main(args.toArray(new String[0]));
+            });
+        });
 		
 		scrollPane = new JScrollPane();
 		scrollPane.setAutoscrolls(true);
@@ -464,25 +445,25 @@ public class Main {
 		frmJObbifier.getContentPane().setLayout(groupLayout);
 		redirectSystemStreams();
 	}
-	
+
+	private void invoke(List<String> strings) {
+		com.android.jobb.Main.main(strings.toArray(new String[0]));
+	}
+
 	private void updateTextPane(final String text)
 	{
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				Document doc = txtpnOutput.getDocument();
-				try
-				{
-					doc.insertString(doc.getLength(), text, null);
-				}
-				catch (BadLocationException e)
-				{
-					throw new RuntimeException(e);
-				}
-				txtpnOutput.setCaretPosition(doc.getLength() - 1);
-			}
-		});
+		SwingUtilities.invokeLater(() -> {
+            Document doc = txtpnOutput.getDocument();
+            try
+            {
+                doc.insertString(doc.getLength(), text, null);
+            }
+            catch (BadLocationException e)
+            {
+                throw new RuntimeException(e);
+            }
+            txtpnOutput.setCaretPosition(doc.getLength() - 1);
+        });
 	}
 	
 	private void redirectSystemStreams()

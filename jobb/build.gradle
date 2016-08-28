@@ -2,5 +2,4 @@ apply plugin: 'java'
 
 dependencies {
     compile project(':libfat32')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
 }

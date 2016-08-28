@@ -14,11 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.*;
 import java.util.concurrent.Executors;
 
 /**
- * Created by cybik on 16-08-28.
+ * Re-engineered by cybik on 16-08-28.
  */
 public class YafotUI {
 
@@ -45,8 +44,7 @@ public class YafotUI {
     private JMenuItem mntmExit;
 
 
-    private void updateTextPane(final String text)
-    {
+    private void updateTextPane(final String text) {
         SwingUtilities.invokeLater(() -> {
             Document doc = txtpnOutput.getDocument();
             try
@@ -61,8 +59,7 @@ public class YafotUI {
         });
     }
 
-    private void redirectSystemStreams()
-    {
+    private void redirectSystemStreams() {
         OutputStream out = new OutputStream()
         {
             @Override
@@ -305,85 +302,90 @@ public class YafotUI {
 
         GroupLayout groupLayout = new GroupLayout(frmJObbifier.getContentPane());
         groupLayout.setHorizontalGroup(
-                groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(groupLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(scrollPane, GroupLayout.Alignment.LEADING)
-                                        .addComponent(lblOutputFileName, GroupLayout.Alignment.LEADING)
-                                        .addGroup(GroupLayout.Alignment.LEADING, groupLayout.createSequentialGroup()
-                                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                                .addGroup(groupLayout.createSequentialGroup()
-                                                                        .addComponent(lblOutputFolder)
-                                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                                                .addComponent(txtInputFolder, GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
-                                                                                .addComponent(txtOutputFolder)))
-                                                                .addGroup(groupLayout.createSequentialGroup()
-                                                                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
-                                                                                .addGroup(GroupLayout.Alignment.LEADING, groupLayout.createSequentialGroup()
-                                                                                        .addComponent(chkUsePassword)
-                                                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                                                                        .addComponent(pwdPassword))
-                                                                                .addGroup(GroupLayout.Alignment.LEADING, groupLayout.createSequentialGroup()
-                                                                                        .addComponent(btnCreateObb)
-                                                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                                                                        .addComponent(rdbtnMain)
-                                                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                                                        .addComponent(rdbtnPatch))
-                                                                                .addGroup(GroupLayout.Alignment.LEADING, groupLayout.createSequentialGroup()
-                                                                                        .addComponent(lblPackageName)
-                                                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                                                                        .addComponent(txtPackageName, GroupLayout.PREFERRED_SIZE, 251, GroupLayout.PREFERRED_SIZE)))
-                                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                                                .addGroup(groupLayout.createSequentialGroup()
-                                                                                        .addComponent(lblPackageVersion)
-                                                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                                                        .addComponent(spinner, GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
-                                                                                .addComponent(btnShowPassword))))
-                                                        .addComponent(lblInputFolder))
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                                        .addComponent(btnOutputSelection)
-                                                        .addComponent(btnInputSelection))))
-                                .addContainerGap(27, Short.MAX_VALUE))
+            groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addGroup(groupLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(
+                        groupLayout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(scrollPane, GroupLayout.Alignment.LEADING)
+                            .addComponent(lblOutputFileName, GroupLayout.Alignment.LEADING)
+                            .addGroup(GroupLayout.Alignment.LEADING, groupLayout.createSequentialGroup()
+                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                    .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addGroup(groupLayout.createSequentialGroup()
+                                            .addComponent(lblOutputFolder)
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                .addComponent(txtInputFolder, GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE)
+                                                .addComponent(txtOutputFolder)))
+                                        .addGroup(groupLayout.createSequentialGroup()
+                                            .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
+                                                .addGroup(GroupLayout.Alignment.LEADING, groupLayout.createSequentialGroup()
+                                                    .addComponent(chkUsePassword)
+                                                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                                    .addComponent(pwdPassword))
+                                                .addGroup(GroupLayout.Alignment.LEADING, groupLayout.createSequentialGroup()
+                                                    .addComponent(btnCreateObb)
+                                                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                                    .addComponent(rdbtnMain)
+                                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(rdbtnPatch))
+                                                .addGroup(GroupLayout.Alignment.LEADING, groupLayout.createSequentialGroup()
+                                                    .addComponent(lblPackageName)
+                                                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                                    .addComponent(txtPackageName, GroupLayout.PREFERRED_SIZE, 251, GroupLayout.PREFERRED_SIZE)))
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                .addGroup(groupLayout.createSequentialGroup()
+                                                    .addComponent(lblPackageVersion)
+                                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                    .addComponent(spinner, GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
+                                                .addComponent(btnShowPassword))))
+                                    .addComponent(lblInputFolder))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnOutputSelection)
+                                    .addComponent(btnInputSelection))
+                        )
+                    )
+                    .addContainerGap(27, Short.MAX_VALUE))
         );
         groupLayout.setVerticalGroup(
-                groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(groupLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(lblInputFolder)
-                                        .addComponent(txtInputFolder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(btnInputSelection))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(lblOutputFolder)
-                                        .addComponent(txtOutputFolder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(btnOutputSelection))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(lblPackageName)
-                                        .addComponent(txtPackageName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(spinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(lblPackageVersion))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(chkUsePassword)
-                                        .addComponent(pwdPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(btnShowPassword))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(btnCreateObb)
-                                        .addComponent(rdbtnMain)
-                                        .addComponent(rdbtnPatch))
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(lblOutputFileName)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                .addContainerGap())
+            groupLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addGroup(
+                    groupLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblInputFolder)
+                            .addComponent(txtInputFolder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnInputSelection))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblOutputFolder)
+                            .addComponent(txtOutputFolder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnOutputSelection))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblPackageName)
+                            .addComponent(txtPackageName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(spinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblPackageVersion))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(chkUsePassword)
+                            .addComponent(pwdPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnShowPassword))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(groupLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnCreateObb)
+                            .addComponent(rdbtnMain)
+                            .addComponent(rdbtnPatch))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(lblOutputFileName)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
+                        .addContainerGap()
+                )
         );
 
         txtpnOutput = new JTextPane();

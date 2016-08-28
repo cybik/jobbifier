@@ -28,6 +28,7 @@ dependencies {
     compile "net.sf.jopt-simple:jopt-simple:5.0.2"
 
     // Tuples
-    compile "com.github.martinstuga:tuples4j:1.2"
+    //compile "com.github.martinstuga:tuples4j:1.2"
+    compile "org.javatuples:javatuples:1.2"
 
 }

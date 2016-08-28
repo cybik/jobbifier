@@ -1,6 +1,6 @@
 package com.cybikbase.yafot;
 
-import com.mtuga.tuples4j.client.Pair;
+import org.javatuples.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,10 +64,10 @@ public class Assemblage {
                 );
                 try {
                     System.out.println(
-                            "Trying to move " + currentTuple.getFirst().getAbsolutePath()
-                                    + " to " + currentTuple.getSecond().getAbsolutePath()
+                            "Trying to move " + currentTuple.getValue0().getAbsolutePath()
+                                    + " to " + currentTuple.getValue1().getAbsolutePath()
                     );
-                    Files.move(currentTuple.getFirst().toPath(), currentTuple.getSecond().toPath());
+                    Files.move(currentTuple.getValue0().toPath(), currentTuple.getValue1().toPath());
                 } catch (IOException e) {
                     throw new RuntimeException("Couldn't assemble archives");
                 }
@@ -101,7 +101,7 @@ public class Assemblage {
         if(undoArchiveAssemblage) {
             for(Pair<File, File> pf: oldAndNewTuples) {
                 try {
-                    Files.move(pf.getSecond().toPath(), pf.getFirst().toPath());
+                    Files.move(pf.getValue1().toPath(), pf.getValue0().toPath());
                 } catch (IOException e) {
                     throw new RuntimeException("Couldn't restore archives to their original paths");
                 }

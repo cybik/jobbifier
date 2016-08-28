@@ -29,7 +29,7 @@ public class Assemblage {
     }
 
 
-    public Assemblage run() {
+    public Assemblage run(File inputTempDir) {
         // Stage 2: List either archives or input directory. Sidenote: if we're getting a GFS list, we move all of
         // 			 them to a default temp dir and use THAT dir for our obb base.
 
@@ -53,7 +53,7 @@ public class Assemblage {
         } else if(!inputDirExistence && archListExistence) {
             undoArchiveAssemblage = true;
             oldAndNewTuples = new ArrayList<>();
-            inputDirValue = new File("yafot-temp-dir/archives-"+(isPatchFile?"patch":"main"));
+            inputDirValue = new File(inputTempDir.getAbsolutePath()+File.separator+"archives-"+(isPatchFile?"patch":"main"));
             inputDirValue.mkdirs();
             Pair<File, File> currentTuple = null;
             for(File f: archList) {

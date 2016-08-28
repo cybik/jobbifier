@@ -18,9 +18,11 @@ jar {
                 'Class-Path': configurations.runtime.files.collect {"$it.name"}.join(' ')
     }
 }
+
 shadowJar {
     configurations = [project.configurations.compile]
 }
+
 dependencies {
     compile project(':googlejobb')
 
@@ -28,7 +30,10 @@ dependencies {
     compile "net.sf.jopt-simple:jopt-simple:5.0.2"
 
     // Tuples
-    //compile "com.github.martinstuga:tuples4j:1.2"
     compile "org.javatuples:javatuples:1.2"
+
+    // Files. Eugh, commons
+    compile "commons-io:commons-io:2.5"
+
 
 }

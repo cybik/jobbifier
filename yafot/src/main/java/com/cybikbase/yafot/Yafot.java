@@ -9,6 +9,7 @@ import java.util.List;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.apache.commons.io.FileUtils;
 
 import static java.lang.System.exit;
 import static java.util.Arrays.asList;
@@ -25,7 +26,7 @@ public class Yafot {
 			OptionParser opt = new OptionParser() {
 				{
 					// Pre-done because there's kind of a circular dep in here.
-					acceptsAll(asList("a", "artifacts", "i", "input-dir"));
+					acceptsAll(asList("a","artifacts","i","input-dir","b","artifacts-patch","j","input-dir-patch"));
 				}
 			};
 			OptionSpec<Void> halp = opt.acceptsAll(asList("h", "?", "usage", "help"), "Show this help").forHelp();
@@ -45,7 +46,6 @@ public class Yafot {
 					.defaultsTo(1)
 					.required()
 				;
-
 			OptionSpec<String> password =
 				opt.acceptsAll(asList("k", "key"), "Key [password] to lock the file with. Optional.")
 					.withRequiredArg()
@@ -63,9 +63,10 @@ public class Yafot {
 					.defaultsTo(new File("output"))
 					.required()
 				;
+
 			OptionSpec<File> artifacts =
 				opt.acceptsAll(asList("a", "artifacts"), "Artifacts to pack - per file.")
-					.requiredUnless("i", "input-dir")
+					.availableUnless("i", "input-dir")
 					.withRequiredArg()
 					.ofType(File.class)
 					.describedAs("art1,art2,...")
@@ -73,25 +74,28 @@ public class Yafot {
 				;
 			OptionSpec<File> artifactsPatch =
 				opt.acceptsAll(asList("b", "artifacts-patch"), "Artifacts to pack in the patch obb - per file.")
+					.availableUnless("j", "input-dir-patch")
 					.withOptionalArg()
 					.ofType(File.class)
 					.describedAs("artp1,artp2,...")
 					.withValuesSeparatedBy(",")
 				;
+
 			OptionSpec<File> inputDir =
 				opt.acceptsAll(asList("i", "input-dir"), "Artifacts to pack - per dir.")
-					.requiredUnless("a", "artifacts")
+					.availableUnless("a", "artifacts")
 					.withRequiredArg()
 					.ofType(File.class)
 					.describedAs("dir")
 				;
 			OptionSpec<File> inputDirPatch =
-				opt.acceptsAll(
-					asList("j", "input-dir-patch"), "Artifacts to pack in patch obb - per dir.")
+				opt.acceptsAll(asList("j", "input-dir-patch"), "Artifacts to pack in patch obb - per dir.")
+					.availableUnless("b", "artifacts-patch")
 					.withOptionalArg()
 					.ofType(File.class)
 					.describedAs("dir")
 				;
+
 			try {
 				opt.printHelpOn(System.out);
 			} catch (IOException e) {
@@ -112,16 +116,19 @@ public class Yafot {
 				if(!outputDirValue.mkdirs()) throw new RuntimeException("Creating outputdir failed");
 			}
 
+			File inputTempDir = new File("yafot-temp-dir");
+			inputTempDir.mkdirs();
+
 			// Stage 2: List either archives or input directory. Sidenote: if we're getting a GFS list, we move all of
 			// 			 them to a default temp dir and use THAT dir for our obb base.
 			List<Assemblage> allAssemblages = new ArrayList<>();
 
 			// Main assemblage.
-			allAssemblages.add((new Assemblage(opts.valuesOf(artifacts), opts.valueOf(inputDir))).run());
+			allAssemblages.add((new Assemblage(opts.valuesOf(artifacts), opts.valueOf(inputDir))).run(inputTempDir));
 
 			if(Assemblage.isThereAPatch(opts.valuesOf(artifactsPatch), opts.valueOf(inputDirPatch))) {
 				allAssemblages.add(
-					(new Assemblage(opts.valuesOf(artifactsPatch), opts.valueOf(inputDirPatch), true)).run()
+					(new Assemblage(opts.valuesOf(artifactsPatch), opts.valueOf(inputDirPatch), true)).run(inputTempDir)
 				);
 			} else {
 				System.out.println("No patchfile generation required.");
@@ -139,16 +146,33 @@ public class Yafot {
 					String.valueOf(opts.valueOf(version)), // package version
 					opts.valueOf(password)  // password characters
 				);
-				System.out.println("The OBB assemblage is being called using these arguments.");
-				for(String s: arguments) System.out.println(s);
+				System.out.print("The OBB assemblage is being called using these arguments.");
+				for(String s: arguments) {
+					if(s.startsWith("-")){
+						System.out.println();
+						System.out.print('\t');
+					}
+					else System.out.print(" ");
+					System.out.print(s);
+				}
+				System.out.println();
 				System.out.println("Note that some of these are forced defaults, as the creator of YAFOT is using YAFOT in that way.");
 				// Call obb NAO
 				invoke(arguments,
-					new File("yafot/output-obb"+(assemblageSet.isPatchFile?"-patch":"")+".log"),
-					new File("yafot/output-obb-err"+(assemblageSet.isPatchFile?"-patch":"")+".log")
+					new File("yafot/output"+(assemblageSet.isPatchFile?"-patch":"")+"-obb.log"),
+					new File("yafot/output"+(assemblageSet.isPatchFile?"-patch":"")+"-obb-err.log")
 				);
 
 				assemblageSet.unrun();
+			}
+
+			if(inputTempDir != null && inputTempDir.exists()) {
+				System.out.println("WHY WON'T THIS DELETE " + inputTempDir.getAbsolutePath());
+				try {
+					FileUtils.forceDeleteOnExit(inputTempDir);
+				} catch (IOException e) {
+					throw new RuntimeException("Couldn't even force delete, what?");
+				}
 			}
 
 		} else {

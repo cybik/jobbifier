@@ -15,8 +15,8 @@ YAFOT (Yet Another F[riendly/unky] Obbification Tool) is based on these tools:
         * .gitignores unified into the root.
     * Offers a command-line interface for easy CI, while maintaining the UI if the user so chooses
         * The command line is easier to understand and simpler than the upstream jobb, 当然.
-    * jObbifier has been renamed from app
-        * jObbifier also uses shadow to create a fatjar easily
+    * the app folder has been renamed to **yafot**
+        * **yafot** also uses shadow to create a fatjar easily
     * This repository offers its users and forkers a Travis configuration if they so desire
 
 

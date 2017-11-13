@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcybik%2Fyafot.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcybik%2Fyafot?ref=badge_shield)
+
 Yet Another F[riendly/unky] Obbifier Tool
 =========
 
@@ -37,3 +39,7 @@ Modified FAT library source. Contains bugfix for [Issue 220717](https://code.goo
 yafot
 ---------
 Main project files for GUI app. Altered from monkey0506's code to allow for fun stuffs.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcybik%2Fyafot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcybik%2Fyafot?ref=badge_large)
